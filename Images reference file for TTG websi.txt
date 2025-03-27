@@ -1,0 +1,32 @@
+Images reference file for TTG website
+Correct as of 27/03/2025 09:23
+
+Echoes - Photo Gallery:
+DSCF2991.jpg
+DSCF2917.jpg
+DSCF2955.jpg
+DSCF3015.jpg
+DSCF3034.jpg
+DSCF3035.jpg
+DSCF6750.jpg
+
+Forest Background and Forest + Ghosts:
+ghost01midleft.png
+ghost02midright.png
+ghost03middle.png //no longer used
+ghost04farleft.png
+ghost05farright.png
+
+Sigils:
+unique02.png
+contact_i.png
+crescent_i(4).png
+cross_i(2).png
+rotator_i.png
+sickle_i(2).png
+triangle_i(2).png
+trident_i.png
+
+Misc:
+vhs_static(1).gif //for the glitchy section transitions
+onyxthumb.png //onyx blog thumbnail image
