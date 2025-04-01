@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Through the Gloom</title>
+  
+  <!-- Google Font links -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@100;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* Font setup for the band name */
+    @font-face {
+      font-family: 'VoidThin';
+      src: url('https://raw.githubusercontent.com/rhyshaldane/TTG-Website/main/void%20regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'VoidRegular';
+      src: url('https://raw.githubusercontent.com/rhyshaldane/TTG-Website/main/void%20thin.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      background: url('images/forestghosts/forestnoghost.png') no-repeat center center fixed; 
+      background-size: cover;
+      color: black;
+      text-align: center;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      cursor: none; /* Hide the default cursor */
+    }
+
+
+
+
+    /* Overlay for the flashlight effect */
+    .page-overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 10%, rgba(0, 0, 0, 0.95) 90%);
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    /* Band name styling */
+    .band-name {
+      position: absolute;
+      top: 22%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'VoidRegular', sans-serif;
+      font-size: 46px;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      opacity: 0.8;
+      z-index: 2;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.3));
+      -webkit-background-clip: text;
+      color: rgba(255, 255, 255, 0.2);
+      transition: opacity 0.1s ease-out;
+      white-space: nowrap;
+    }
+
+
+    /* Bottom navigation bar styling */
+    .bottom-nav {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      opacity: 0.3;
+      font-size: 10px;
+      z-index: 3;
+      font-family: "Manrope", serif;
+      letter-spacing: 2px;
+      color: white;
+      width: auto;
+      white-space: nowrap;
+    }
+    .bottom-nav a {
+      text-decoration: none;
+      color: white;
+      margin: 0 10px;
+      font-weight: lighter;
+    }
+
+    /* Flashlight effect styling */
+    .flashlight {
+      position: absolute;
+      width: 5vw;
+      height: 5vw;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 10%, rgba(0,0,0,0.9) 90%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: screen;
+      z-index: 4;
+      border-radius: 50%;
+      animation: flicker 5s infinite ease-in-out, drift 15s infinite ease-in-out alternate;
+    }
+    @keyframes flicker {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      20% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.02); }
+      40% { opacity: 0.9; transform: translate(-50%, -50%) scale(0.98); }
+      60% { opacity: 1; transform: translate(-50%, -50%) scale(1.01); }
+      80% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.03); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes drift {
+      0% { transform: translate(-50%, -50%) translateX(0px) translateY(0px); }
+      50% { transform: translate(-50%, -50%) translateX(5px) translateY(-3px); }
+      100% { transform: translate(-50%, -50%) translateX(-5px) translateY(3px); }
+    }
+
+
+    /* Photo Gallery Styles */
+    .gallery-container {
+      display: none; /* Initially hidden */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      cursor: default;
+    }
+
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      max-width: 80%;
+    }
+
+    .gallery a {
+      flex: 1 1 calc(100% / 5 - 10px);
+      max-width: calc(100% / 5 - 10px);
+      height: auto;
+      overflow: hidden;
+      border-radius: 5px;
+      position: relative;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .gallery a:hover {
+      transform: scale(1.1);
+    }
+
+    .gallery img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 5px;
+      transition: transform 0.1s ease-in-out, filter 0.1s ease-in-out;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 15px;
+      font-size: 20px;
+      color: white;
+      cursor: pointer;
+      z-index: 10001;
+    }
+
+    /* Close button for Visions (video gallery) and Echoes (photo gallery) */
+    .close-button.visions, 
+    .close-button.echoes {
+      right: 20px;
+      left: auto;
+      font-size: 26px;
+    }
+
+    /* Close button for Whispers sidebar (keep on the left) */
+    .close-button.whispers {
+      left: 10px;
+      right: auto;
+    }
+
+    /* Lightbox styles */
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      justify-content: center;
+      align-items: center;
+      cursor: default;
+    }
+
+    .lightbox img {
+      max-width: 80vw;
+      max-height: 80vh;
+      border-radius: 5px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Lightbox navigation */
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 40px;
+      color: white;
+      background: rgba(0, 0, 0, 0.3);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .lightbox-nav:hover {
+      opacity: 1;
+    }
+
+    .lightbox-nav-prev {
+      left: 20px;
+    }
+
+    .lightbox-nav-next {
+      right: 20px;
+    }
+
+    /* Video Gallery Styles */
+    .video-gallery-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      cursor: default;
+    }
+
+    .video-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 80%;
+      margin-top: 20px;
+    }
+
+    .video-gallery-title {
+      color: white;
+      font-family: 'VoidThin', sans-serif;
+      font-size: 24px;
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+    }
+
+    .video-gallery a {
+      display: block;
+      width: 250px;
+      height: auto;
+      border-radius: 5px;
+      overflow: hidden;
+      transition: transform 0.2s ease-in-out;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .video-gallery a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+
+    .video-gallery img {
+      width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
+
+    /* Video player lightbox */
+    .video-lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 11000;
+      justify-content: center;
+      align-items: center;
+      cursor: default;
+    }
+
+    .video-lightbox-content {
+      position: relative;
+      width: 80%;
+      max-width: 800px;
+    }
+
+    .video-lightbox iframe {
+      width: 100%;
+      height: 450px;
+      border: none;
+    }
+
+    .video-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .video-title {
+        margin-top: 8px;
+        font-size: 14px;
+        color: white;
+        font-family: 'VoidThin', sans-serif;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+
+    /* Side Panel for Reviews */
+    .side-panel {
+      position: fixed;
+      right: -400px;
+      top: 0;
+      width: 400px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      overflow: auto;
+      transition: right 0.5s ease;
+      box-shadow: -5px 0 20px rgba(255,255,255,0.2);
+    }
+    
+    .side-panel.open {
+      right: 0;
+    }
+    
+    .side-panel .close-panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: #fff;
+        font-size: 25px;
+        cursor: pointer;
+    }
+
+    .side-panel iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      overflow: hidden;
+      display: block;
+    }
+
+    .background-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .background-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      position: absolute;
+      transform: translate(-50%);
+      z-index: 0;
+    }
+
+    @keyframes random-flicker {
+      0% { opacity: 1; filter: none; }
+      10% { opacity: 0.6; filter: brightness(1.2) contrast(1.1); }
+      20% { opacity: 0.9; filter: hue-rotate(3deg); }
+      35% { opacity: 0.5; filter: brightness(0.8) contrast(0.9); }
+      50% { opacity: 1; filter: none; }
+      65% { opacity: 0.7; filter: hue-rotate(-3deg) contrast(1.2); }
+      80% { opacity: 1; filter: none; }
+      100% { opacity: 1; filter: none; }
+    }
+
+.ritual-circle {
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    width: 25vw;
+    height: 25vw;
+    transform: translate(-50%, -50%) rotate(0deg);
+    background: none;
+    background-size: contain;
+    border-radius: 50%;
+    filter: brightness(100%) contrast(140%) drop-shadow(0px 0px 80px rgba(255, 255, 255, 0.2));
+    z-index: 3;
+    opacity: 0.8;
+    animation: subtle-glow 8s ease-in-out infinite alternate, 
+               gentle-distortion 12s ease-in-out infinite, 
+               faint-flicker 15s linear infinite alternate, 
+               faint-pulse 6s ease-in-out infinite alternate;
+}
+
+
+@keyframes subtle-glow {
+    0% { box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.7); }
+    100% { box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.5); }
+}
+
+@keyframes gentle-distortion {
+    0% { filter: brightness(90%) contrast(110%) blur(0.3px); }
+    50% { filter: brightness(95%) contrast(115%) blur(0.6px); }
+    100% { filter: brightness(90%) contrast(110%) blur(0.3px); }
+}
+
+@keyframes faint-flicker {
+    0% { opacity: 0.55; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.55; }
+}
+
+@keyframes faint-pulse {
+    0% { filter: brightness(120%) contrast(140%) drop-shadow(0px 0px 20px rgba(255, 255, 255, 0.5)); }
+    50% { filter: brightness(130%) contrast(150%) drop-shadow(0px 0px 25px rgba(255, 255, 255, 0.6)); }
+    100% { filter: brightness(120%) contrast(140%) drop-shadow(0px 0px 20px rgba(255, 255, 255, 0.5)); }
+}
+
+
+/* Ember particle effect */
+.ember {
+    position: absolute;
+    width: 3px; /* gpt says to change to 4px (width and height) */
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.9); /* Adjust glow color */
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    animation: ember-flicker 1.5s infinite alternate;
+    box-shadow: 0 0 8px rgba(255, 180, 50, 0.8); /* gpt changed the 8px to 10px */
+}
+
+
+/* Flickering effect - subtle, randomized */
+@keyframes ember-flicker {
+    0% { opacity: 0.7; transform: scale(1); } /* gpt said to change to 0.5 */
+    50% { opacity: 1; transform: scale(1.3); }
+    100% { opacity: 0.5; transform: scale(0.9); }
+}
+
+.ritual-wrapper {
+    position: absolute;
+    top: 65%; /* gtp said to change to 50% */
+    left: 50%;
+    width: 30vw; 
+    height: 30vw;
+    transform: translate(-50%, -50%);
+    opacity: 0.6;  /* gpt addition */
+    z-index: 3; /* Ensure correct layering, gpt said to change to 2 */
+}
+
+body.scroll-started {
+  cursor: default;
+}
+
+body.scroll-started .band-name {
+  top: 10%;
+  transform: translateX(-50%) scale(0.7);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+body.scroll-started .ritual-wrapper {
+  top: 90%;
+  transform: translate(-50%, -50%) scale(0.3);
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+
+#ember-container {
+    position: absolute;
+    top: 30%;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    opacity: 0.5;
+    z-index: 2; /* Behind the circle */
+}
+
+
+
+.unique-sigil {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80%;
+    height: auto;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.2, 0.6, 0.3, 1), 
+                transform 0.35s cubic-bezier(0.1, 0.7, 0.3, 1.2);
+                filter: 0.8 ease-in-out;
+    pointer-events: none;
+    z-index: 6;
+}
+
+/* Scroll-locked section layout */
+#section-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.ttg-section {
+  position: absolute;
+  top: 7.5%;
+  left: 0;
+  width: 100%;
+  height: 85%;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.ttg-section.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.section-label {
+  font-family: 'VoidThin', sans-serif;
+  font-size: 8vw;
+  opacity: 0.08;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  z-index: 1;
+  user-select: none;
+}
+
+.section-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Static overlay transition */
+#static-overlay {
+  position: fixed;
+  top: 7.5%;
+  left: 0;
+  width: 100vw;
+  height: 85%;
+  background-image: url('images/vhs_static(1).gif'); /* static noise GIF */
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: 9999; /* Ensures it's above everything else */
+}
+
+#static-overlay.visible {
+  opacity: 0.6; /* Adjust for stronger/weaker static */
+}
+
+
+@keyframes static-noise {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+
+
+
+  </style>
+</head>
+<body>
+  <div class="page-overlay"></div>
+
+  <!-- Ghost images for glitch effect -->
+  <div class="background-container">
+    <img id="background-image" src="images/forestghosts/forestnoghost.png" alt="">
+  </div>
+
+  <!-- Flashlight element that follows the mouse -->
+  <div class="flashlight"></div>
+
+  <!-- Container for band name and stuff -->
+  <div class="container">
+    <div class="band-name">Through the Gloom</div>
+    
+    <div class="ritual-wrapper">
+      <div id="ember-container"></div> <!-- Embers behind -->
+      <div class="ritual-circle">
+          <svg viewBox="0 0 500 500" class="circle-svg">
+              <circle cx="250" cy="250" r="200" stroke="none" stroke-width="15" fill="none"></circle>
+          </svg>
+
+      </div>
+    </div>
+    
+    
+
+    <!-- Scrolling media bar with links, old code but it breaks stuff if i delete so i guess this whole bit stays-->
+    <div class="media-bar">
+      <!-- Videos: Visions -->
+      <div class="media-link">
+        <a href="#videos" id="visionsLink"><!--Visions--></a>
+      </div>
+      <!-- Photos: Echoes -->
+      <div class="media-link">
+        <a href="#photos" id="echoesLink"><!--Echoes--></a>
+      </div>
+      <!-- Reviews: Whispers -->
+      <div class="media-link">
+        <a href="#reviews" id="whispersLink"><!--Whispers--></a>
+      </div>
+      <!-- Music maker: Summon -->
+      <div class="media-link">
+        <a href="#placeholder" id="summonLink"><!--Summon--></a>
+      </div>
+      <!-- About Section: Origins -->
+      <div class="media-link">
+        <a href="#placeholder" id="originsLink"><!--Origins--></a>
+      </div>
+      <!-- Contact Page, leave a message: Manifest -->
+      <div class="media-link">
+        <a href="#placeholder" id="manifestLink"><!--Manifest--></a>
+      </div>
+      <!-- Links, friends, etc: Shadows -->
+      <div class="media-link">
+        <a href="#placeholder" id="shadowsLink"><!--Shadows--></a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom navigation bar -->
+  <div class="bottom-nav">
+    <!--<div>
+      <a href="https://utopianmechanics.bandcamp.com/album/dark-patterns" target="_blank">Bandcamp</a> |
+      <a href="https://open.spotify.com/artist/76uTSrHT53n5oSbYtJ4rRp?si=9ErcgjoERiupjKQMsDtgyg" target="_blank">Spotify</a> |
+      <a href="https://music.apple.com/us/artist/through-the-gloom/1691335112" target="_blank">iTunes</a> |
+      <a href="https://www.instagram.com/through.the.gloom/?hl=en" target="_blank">Instagram</a> |
+      <a href="https://www.facebook.com/throughthegloom/" target="_blank">Facebook</a>
+    </div>-->
+    <div>© 2025 Through the Gloom. All content produced by Through the Gloom. Additional elements produced by Utopian Mechanics.</div>
+  </div>
+
+  <!-- Photo Gallery (Echoes) -->
+  <div class="gallery-container" id="photoGallery">
+    <span class="close-button echoes" id="closePhotoGallery">&times;</span>
+    <div class="gallery">
+      <a href="https://raw.githubusercontent.com/rhyshaldane/TTG-Website-Pics/refs/heads/main/DSCF2917.jpg" data-lightbox="ttg-gallery">
+        <img src="https://raw.githubusercontent.com/rhyshaldane/TTG-Website-Pics/refs/heads/main/DSCF2917.jpg" class="gallery-thumb" alt="Through the Gloom photo 2">
+      </a>
+      <a href="https://raw.githubusercontent.com/rhyshaldane/TTG-Website-Pics/refs/heads/main/DSCF2955.jpg" data-lightbox="ttg-gallery">
+        <img src="https://raw.githubusercontent.com/rhyshaldane/TTG-Website-Pics/refs/heads/main/DSCF2955.jpg" class="gallery-thumb" alt="Through the Gloom photo 3">
+      </a>
+      <a href="https://raw.githubusercontent.com/rhyshaldane/TTG-Website-Pics/refs/heads/main/DSCF3015.jpg" data-lightbox="ttg-gallery">
+        <img src="https://raw.githubusercontent.com/rhyshaldane/TTG-Website-Pics/refs/heads/main/DSCF3015.jpg" class="gallery-thumb" alt="Through the Gloom photo 4">
+      </a>
+      <a href="https://raw.githubusercontent.com/rhyshaldane/TTG-Website-Pics/refs/heads/main/DSCF3034.jpg" data-lightbox="ttg-gallery">
+        <img src="https://raw.githubusercontent.com/rhyshaldane/TTG-Website-Pics/refs/heads/main/DSCF3034.jpg" class="gallery-thumb" alt="Through the Gloom photo 5">
+      </a>
+      <a href="https://raw.githubusercontent.com/rhyshaldane/TTG-Website/refs/heads/main/DSCF6750.jpg" data-lightbox="ttg-gallery">
+        <img src="https://raw.githubusercontent.com/rhyshaldane/TTG-Website/refs/heads/main/DSCF6750.jpg" class="gallery-thumb" alt="Through the Gloom photo 1">
+      </a>
+    </div>
+  </div>
+
+  <!-- Fullscreen Photo Lightbox -->
+  <div id="photoLightbox" class="lightbox">
+    <span class="close-button echoes" id="closePhotoLightbox">&times;</span>
+    <div id="photoLightboxNavPrev" class="lightbox-nav lightbox-nav-prev">&lt;</div>
+    <div id="photoLightboxNavNext" class="lightbox-nav lightbox-nav-next">&gt;</div>    
+    <img id="lightboxImg" src="" alt="Full-size image">
+  </div>
+
+  <!-- Video Gallery (Visions) -->
+  <div class="video-gallery-container" id="videoGallery">
+    <span class="close-button visions" id="closeVideoGallery">&times;</span>
+    <div class="video-gallery-title">Visions of Gloom</div>
+    <div class="video-gallery">
+
+        <div class="video-item">
+          <a href="https://www.youtube.com/embed/4wkTC2ZjINo" data-video>
+            <img src="https://img.youtube.com/vi/4wkTC2ZjINo/0.jpg" alt="Dark Patterns Teaser">
+          </a>
+          <p class="video-title">Dark Patterns Teaser</p>
+        </div>
+
+        <div class="video-item">
+          <a href="https://www.youtube.com/embed/IBmCN9wV-74" data-video>
+            <img src="https://img.youtube.com/vi/IBmCN9wV-74/0.jpg" alt="Nostromos Teaser">
+          </a>
+          <p class="video-title">Nostromos Reckoning Teaser</p>
+        </div>  
+    </div>
+  </div>
+
+  <!-- Video Lightbox -->
+  <div id="videoLightbox" class="video-lightbox">
+    <span class="close-button visions" id="closeVideoLightbox">&times;</span>
+    <div class="video-lightbox-content">
+      <iframe id="videoFrame" src="" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Sliding Side Panel for Reviews (Whispers) -->
+  <div id="whispersPanel" class="side-panel">
+      <span class="close-button whispers" id="closeWhispersPanel">&times;</span>
+      <iframe id="whispersFrame" src="https://onyxmusicreviews.com/2024/08/16/through-the-gloom-dark-patterns/"></iframe>
+  </div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+  // =========================
+  // Band Name Animation
+  // =========================
+  let bandName = document.querySelector(".band-name");
+  let text = bandName.textContent;
+  bandName.innerHTML = "";
+  text.split("").forEach(char => {
+    let span = document.createElement("span");
+    span.textContent = char === " " ? "\u00A0" : char;
+    span.style.display = "inline-block";
+    span.style.transition = "opacity 0.1s ease-out";
+    span.style.opacity = "0.1";
+    span.style.color = "white";
+    bandName.appendChild(span);
+  });
+
+  // =========================
+  // Utility Functions
+  // =========================
+  function toggleDisplay(element, displayStyle) {
+    element.style.display = displayStyle;
+  }
+
+  // Global keydown listener for escape key
+  document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+      // Photo lightbox
+      if (photoLightbox.style.display === "flex") {
+        toggleDisplay(photoLightbox, 'none');
+      }
+      // Photo gallery
+      if (photoGallery.style.display === "flex") {
+        toggleDisplay(photoGallery, 'none');
+      }
+      // Video lightbox
+      if (videoLightbox.style.display === "flex") {
+        videoFrame.src = '';
+        toggleDisplay(videoLightbox, 'none');
+      }
+      // Video gallery
+      if (videoGallery.style.display === "flex") {
+        toggleDisplay(videoGallery, 'none');
+      }
+      // Whispers panel
+      if (whispersPanel.classList.contains("open")) {
+        whispersPanel.classList.remove("open");
+      }
+    }
+  });
+
+
+
+  // =========================
+  // Photo Gallery (Echoes)
+  // =========================
+  const echoesLink = document.getElementById('echoesLink');
+  const photoGallery = document.getElementById('photoGallery');
+  const closePhotoGallery = document.getElementById('closePhotoGallery');
+  const photoLightbox = document.getElementById('photoLightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const closePhotoLightbox = document.getElementById('closePhotoLightbox');
+  const lightboxNavPrev = document.getElementById('photoLightboxNavPrev');
+  const lightboxNavNext = document.getElementById('photoLightboxNavNext');
+  let currentImageIndex = 0;
+  const galleryLinks = document.querySelectorAll(".gallery a");
+
+  echoesLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    toggleDisplay(photoGallery, 'flex');
+  });
+
+  closePhotoGallery.addEventListener('click', function() {
+    toggleDisplay(photoGallery, 'none');
+  });
+
+  galleryLinks.forEach((link, index) => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      currentImageIndex = index;
+      lightboxImg.src = this.getAttribute('href');
+      toggleDisplay(photoLightbox, 'flex');
+    });
+  });
+
+  closePhotoLightbox.addEventListener('click', function() {
+    toggleDisplay(photoLightbox, 'none');
+  });
+
+  function showImage(index) {
+    currentImageIndex = index;
+    lightboxImg.src = galleryLinks[index].getAttribute("href");
+  }
+
+  lightboxNavPrev.addEventListener("click", function() {
+    let newIndex = currentImageIndex - 1;
+    if (newIndex < 0) newIndex = galleryLinks.length - 1;
+    showImage(newIndex);
+  });
+
+  lightboxNavNext.addEventListener("click", function() {
+    let newIndex = currentImageIndex + 1;
+    if (newIndex >= galleryLinks.length) newIndex = 0;
+    showImage(newIndex);
+  });
+
+  // Arrow key navigation for lightbox
+  document.addEventListener("keydown", function(event) {
+    if (photoLightbox.style.display === "flex") {
+      if (event.key === "ArrowLeft") {
+        let newIndex = currentImageIndex - 1;
+        if (newIndex < 0) newIndex = galleryLinks.length - 1;
+        showImage(newIndex);
+      } else if (event.key === "ArrowRight") {
+        let newIndex = currentImageIndex + 1;
+        if (newIndex >= galleryLinks.length) newIndex = 0;
+        showImage(newIndex);
+      }
+    }
+  });
+
+  // =========================
+  // Video Gallery (Visions)
+  // =========================
+  const visionsLink = document.getElementById('visionsLink');
+  const videoGallery = document.getElementById('videoGallery');
+  const closeVideoGallery = document.getElementById('closeVideoGallery');
+  const videoLinks = document.querySelectorAll(".video-gallery a[data-video]");
+  const videoLightbox = document.getElementById('videoLightbox');
+  const videoFrame = document.getElementById('videoFrame');
+  const closeVideoLightbox = document.getElementById('closeVideoLightbox');
+
+  visionsLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    toggleDisplay(videoGallery, 'flex');
+  });
+
+  closeVideoGallery.addEventListener('click', function() {
+    toggleDisplay(videoGallery, 'none');
+  });
+
+  videoLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      let videoUrl = this.getAttribute('href');
+      videoFrame.src = videoUrl;
+      toggleDisplay(videoLightbox, 'flex');
+    });
+  });
+
+  closeVideoLightbox.addEventListener('click', function() {
+    videoFrame.src = ''; // Reset src to stop video
+    toggleDisplay(videoLightbox, 'none');
+  });
+
+  // =========================
+  // Reviews Side Panel (Whispers)
+  // =========================
+  const whispersLink = document.getElementById('whispersLink');
+  const whispersPanel = document.getElementById('whispersPanel');
+  const closeWhispersPanel = document.getElementById('closeWhispersPanel');
+
+  whispersLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    whispersPanel.classList.toggle('open');
+  });
+
+  closeWhispersPanel.addEventListener('click', function() {
+    whispersPanel.classList.remove('open');
+  });
+
+  // =========================
+  // Mouse Move for Flashlight Effect
+  // =========================
+  document.addEventListener("mousemove", function(e) {
+    let flashlight = document.querySelector(".flashlight");
+    flashlight.style.left = e.clientX + "px";
+    flashlight.style.top = e.clientY + "px";
+
+    let maxDistance = 300; // Maximum distance where opacity is affected
+    let defaultOpacity = 0.3;
+
+    // Update band name letters
+    let bandLetters = document.querySelectorAll(".band-name span");
+    bandLetters.forEach(letter => {
+      let rect = letter.getBoundingClientRect();
+      let letterCenterX = rect.left + rect.width / 2;
+      let letterCenterY = rect.top + rect.height / 2;
+      let distance = Math.hypot(e.clientX - letterCenterX, e.clientY - letterCenterY);
+      let opacityFactor = 1 - Math.min(distance / maxDistance, 1);
+      letter.style.opacity = `${0.1 + (0.9 * opacityFactor)}`;
+    });
+  });
+
+  // =========================
+  // Ghost Background Flicker Effect
+  // =========================
+  const backgrounds = [
+    "images/forestghosts/forestnoghost.png",       // Default no ghosts
+    "images/forestghosts/forestmidleftghost.png",  // Mid Left Ghost
+    "images/forestghosts/forestmidrightghost.png", // Mid Right Ghost
+    "images/forestghosts/forestfarleftghost.png",  // Far Left Ghost
+    "images/forestghosts/forestfarrightghost.png"  // Far Right Ghost
+  ];
+
+  const minDelay = 30000;  // Minimum time between ghost appearances (30s)
+  const maxDelay = 90000;  // Maximum time (90s)
+  const minVisibleTime = 2000; // Minimum flicker time 
+  const maxVisibleTime = 3000; // Maximum flicker time 
+
+  const ghostOpacityLevels = {
+    "1": 0.2,  // Mid Left Ghost - Almost fully visible
+    "2": 0.2,  // Mid Right Ghost
+    "3": 0.3,  // Far Left Ghost
+    "4": 0.3,  // Far Right Ghost - Fully visible
+  };
+
+function showGhostBackground() {
+  let bgImage = document.getElementById("background-image");
+  if (!bgImage) {
+    console.error("background-image element not found");
+    return;
+  }
+
+  // Define randomGhost and flickerIterations here:
+  let randomGhost = Math.floor(Math.random() * 4) + 1;
+  let flickerIterations = Math.floor(Math.random() * 8) + 5; // Adjust number to something reasonable (5-12 flickers)
+
+  function glitchFlicker(times) {
+    if (times <= 0) {
+      bgImage.src = backgrounds[0];
+      let nextAppearance = Math.random() * (maxDelay - minDelay) + minDelay;
+      setTimeout(showGhostBackground, nextAppearance);
+      return;
+    }
+
+    let ghostOpacity = ghostOpacityLevels[randomGhost.toString()] || 0.8;
+    bgImage.src = Math.random() > 0.5 ? backgrounds[randomGhost] : backgrounds[0];
+
+    setTimeout(() => {
+      let flickerChance = Math.random();
+      if (flickerChance > 0.6) {
+        bgImage.style.opacity = ghostOpacity * 0.5;
+      } else if (flickerChance > 0.3) {
+        bgImage.style.opacity = ghostOpacity * 0.7;
+      } else {
+        bgImage.style.opacity = ghostOpacity;
+      }
+
+      glitchFlicker(times - 1);
+    }, Math.random() * (80 - 10) + 10);
+  }
+
+  glitchFlicker(flickerIterations);
+
+}
+
+  // Start flickering effect after a random delay
+  setTimeout(() => {
+    showGhostBackground();
+  }, Math.random() * (maxDelay - minDelay) + minDelay);
+
+
+
+
+  // =========================
+  // Ritual Circle Effects
+  // =========================
+  let ritualCircle = document.querySelector(".ritual-circle");
+
+  if (ritualCircle) {
+      // Create and append the unique sigil
+      const uniqueSigil = document.createElement("img");
+      uniqueSigil.src = "images/sigils/unique/unique02.png"; // this is correct
+      uniqueSigil.classList.add("unique-sigil");
+      uniqueSigil.style.opacity = "0.8";
+      uniqueSigil.style.position = "absolute";
+      uniqueSigil.style.top = "50%";
+      uniqueSigil.style.left = "50%";
+      uniqueSigil.style.transform = "translate(-50%, -50%)";
+      uniqueSigil.style.zIndex = "6";
+      ritualCircle.appendChild(uniqueSigil);
+
+
+  // Hide the sigil by default
+  uniqueSigil.style.opacity = "0";
+
+  // Reveal effect when mouse enters the ritual circle
+  ritualCircle.addEventListener("mouseenter", function() {
+    uniqueSigil.style.animation = "interference 1.4s infinite alternate";
+});
+
+ritualCircle.addEventListener("mouseleave", function() {
+    uniqueSigil.style.animation = "none";
+    uniqueSigil.style.opacity = "0";
+    uniqueSigil.style.filter = "contrast(1.1) brightness(1.1) blur(1px)";
+    setTimeout(() => {
+      uniqueSigil.style.filter = "contrast(1) brightness(1) blur(0)";
+    }, 800);
+
+    uniqueSigil.style.opacity = "0"; // Ensures it fades out completely
+});
+
+
+// Adjust distortion effect based on proximity
+ritualCircle.addEventListener("mousemove", function(e) {
+    let rect = ritualCircle.getBoundingClientRect();
+    let centerX = rect.left + rect.width / 2;
+    let centerY = rect.top + rect.height / 2;
+    let distance = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+    let maxDistance = rect.width / 2;
+    
+    let intensity = 1 - Math.pow(distance / maxDistance, 2); // Non-linear intensity
+
+    uniqueSigil.style.opacity = intensity;
+    
+    if (intensity > 0.7) {
+        uniqueSigil.style.animation = "interference 0.5s infinite alternate";
+    } else {
+        uniqueSigil.style.animation = "interference 1.5s infinite alternate";
+    }
+});
+
+
+  }
+
+  ritualCircle.addEventListener("mouseenter", function() {
+    ritualCircle.style.filter = "brightness(100%) contrast(140%) drop-shadow(0px 0px 25px rgba(255, 255, 255, 0.5))";
+  });
+
+  ritualCircle.addEventListener("mouseleave", function() {
+    ritualCircle.style.filter = "brightness(80%) contrast(120%) drop-shadow(0px 0px 20px rgba(255, 255, 255, 0.8))";
+  });
+
+  const emberContainer = document.getElementById("ember-container");
+
+
+  function createEmber() {
+    let ember = document.createElement("div");
+    ember.classList.add("ember");
+
+    // Random starting position inside the ritual circle
+    let angle = Math.random() * Math.PI * 2; // Full 360-degree spread
+    let radius = Math.random() * 40; // Keeps embers concentrated in the center
+    let x = Math.cos(angle) * radius;
+    let y = Math.sin(angle) * radius;
+
+    // Set explicit pixel positions instead of percentages
+    ember.style.left = `${emberContainer.offsetWidth / 2 + x}px`;
+    ember.style.top = `${emberContainer.offsetHeight / 2 + y}px`;
+
+    // Random movement properties
+    let driftX = (Math.random() - 0.5) * 1; // Random horizontal drift
+    let upwardSpeed = Math.random() * 0.5 + 0.2; // Random upward speed
+
+    // Apply animation using JavaScript loop instead of CSS keyframes
+    let lifetime = Math.random() * 10000 + 7000; // 7-17 seconds lifespan
+    let startTime = Date.now();
+
+    function animateEmber() {
+      let elapsed = Date.now() - startTime;
+      let progress = elapsed / lifetime;
+
+      if (progress >= 1) {
+        ember.remove();
+        return;
+      }
+
+      // Ensure proper rising movement
+      let newY = parseFloat(ember.style.top) - upwardSpeed;
+      let newX = parseFloat(ember.style.left) + driftX;
+      let newRotation = progress * 180; // Full spin effect
+
+      ember.style.top = `${newY}px`;
+      ember.style.left = `${newX}px`;
+      ember.style.transform = `rotate(${newRotation}deg)`;
+      ember.style.opacity = `${0.5 - progress * 0.1}`; // Fade out
+
+      requestAnimationFrame(animateEmber);
+    }
+
+    emberContainer.appendChild(ember);
+    requestAnimationFrame(animateEmber);
+  }
+
+  // Generate embers randomly every 4-7 seconds
+  setInterval(createEmber, 4000 + Math.random() * 3000);
+
+// Create embers randomly across the whole page
+function createGlobalEmber() {
+  let globalEmber = document.createElement("div");
+  globalEmber.classList.add("ember");
+
+  // Random position on entire screen
+  globalEmber.style.left = Math.random() * window.innerWidth + 'px';
+  globalEmber.style.top = Math.random() * window.innerHeight + 'px';
+
+  // Random movement drift and rise
+  let driftX = (Math.random() - 0.5) * 2; 
+  let upwardSpeed = Math.random() * 0.5 + 0.2; 
+
+  // Animation (rise, drift, fade)
+  let lifetime = Math.random() * 10000 + 7000; 
+  let startTime = Date.now();
+
+  function animateGlobalEmber() {
+    let elapsed = Date.now() - startTime;
+    let progress = elapsed / lifetime;
+
+    if (progress >= 1) {
+      globalEmber.remove();
+      return;
+    }
+
+    let newY = parseFloat(globalEmber.style.top) - upwardSpeed;
+    let newX = parseFloat(globalEmber.style.left) + (Math.random() - 0.5) * driftX;
+    let rotationAngle = progress * 180;
+
+    globalEmber.style.top = `${newY}px`;
+    globalEmber.style.left = `${newX}px`;
+    globalEmber.style.transform = `rotate(${rotationAngle}deg)`;
+    globalEmber.style.opacity = `${0.5 - progress * 0.1}`;
+
+    requestAnimationFrame(animateGlobalEmber);
+  }
+
+  document.body.appendChild(globalEmber);
+  requestAnimationFrame(animateGlobalEmber);
+}
+
+// Spawn global embers more frequently (every 2-4 seconds)
+setInterval(createGlobalEmber, 2000 + Math.random() * 2000);
+
+
+
+  // =========================
+  // Scroll-Jack Navigation Logic
+  // =========================
+  const sections = Array.from(document.querySelectorAll('.ttg-section'));
+  let currentSection = -1;
+  let isTransitioning = false;
+
+  // Activate initial section
+  if (currentSection >= 0) {
+    sections[currentSection].classList.add('active');
+  }
+
+  function changeSection(direction) {
+    if (isTransitioning) return;
+    const nextIndex = currentSection + direction;
+    if (nextIndex < -1 || nextIndex >= sections.length) return;
+
+    isTransitioning = true;
+
+    if (currentSection >= 0) {
+      sections[currentSection].classList.remove('active');
+    }
+
+    currentSection = nextIndex;
+
+    if (currentSection >= 0) {
+      sections[currentSection].classList.add('active');
+    }
+
+    setTimeout(() => {
+      isTransitioning = false;
+    }, 1000);
+  }
+
+  let hasScrolled = false;
+
+  function handleScrollStart() {
+    if (!hasScrolled) {
+      document.body.classList.add('scroll-started');
+      hasScrolled = true;
+    }
+  }
+
+
+  // Scroll wheel
+  window.addEventListener('wheel', (e) => {
+    handleScrollStart();
+    if (e.deltaY > 0) {
+      changeSection(1); // down
+    } else if (e.deltaY < 0) {
+      changeSection(-1); // up
+    }
+  });
+
+  // Arrow key navigation
+  window.addEventListener('keydown', (e) => {
+    handleScrollStart();
+    if (e.key === 'ArrowDown') {
+      changeSection(1);
+    } else if (e.key === 'ArrowUp') {
+      changeSection(-1);
+    }
+  });
+
+  const staticOverlay = document.getElementById('static-overlay');
+
+function showStaticOverlay() {
+  staticOverlay.classList.add('visible');
+}
+
+function hideStaticOverlay() {
+  staticOverlay.classList.remove('visible');
+}
+
+// Update the changeSection function to include static effect
+function changeSection(direction) {
+  if (isTransitioning) return;
+  const nextIndex = currentSection + direction;
+  if (nextIndex < -1 || nextIndex >= sections.length) return;
+
+  isTransitioning = true;
+  showStaticOverlay();
+
+  setTimeout(() => {
+    if (currentSection >= 0) {
+      sections[currentSection].classList.remove('active');
+    }
+
+    currentSection = nextIndex;
+
+    if (currentSection >= 0) {
+      sections[currentSection].classList.add('active');
+    }
+
+    setTimeout(() => {
+      hideStaticOverlay();
+      isTransitioning = false;
+    }, 500); // Overlay hides after 0.5 seconds (matches CSS)
+  }, 500); // Section switch occurs 0.5s after static appears
+}
+
+
+
+
+
+
+});
+
+</script>
+
+<!-- Scroll Sections -->
+<div id="section-wrapper">
+    <section class="ttg-section" id="section-origins">
+      <div class="section-label">ORIGINS</div>
+      <div class="section-content">
+        <p>This is placeholder content for the Origins section.</p>
+      </div>
+    </section>
+  
+    <section class="ttg-section" id="section-visions">
+      <div class="section-label">VISIONS</div>
+      <div class="section-content">
+        <p>Placeholder for the video gallery (YouTube).</p>
+      </div>
+    </section>
+  
+    <section class="ttg-section" id="section-echoes">
+      <div class="section-label">ECHOES</div>
+      <div class="section-content">
+        <p>Placeholder for the photo gallery.</p>
+      </div>
+    </section>
+  
+    <section class="ttg-section" id="section-whispers">
+      <div class="section-label">WHISPERS</div>
+      <div class="section-content">
+        <p>Reviews will go here — maybe a list with overlay.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Static glitch overlay -->
+  <div id="static-overlay"></div>
+
+
+    </body>
+</html>
+
+<!--   ▄▄▄█████▓▄▄▄█████▓  ▄████ 
+       ▓  ██▒ ▓▒▓  ██▒ ▓▒ ██▒ ▀█▒
+       ▒ ▓██░ ▒░▒ ▓██░ ▒░▒██░▄▄▄░
+       ░ ▓██▓ ░ ░ ▓██▓ ░ ░▓█  ██▓
+         ▒██▒ ░   ▒██▒ ░ ░▒▓███▀▒
+         ▒ ░░     ▒ ░░    ░▒   ▒ 
+           ░        ░      ░   ░ 
+         ░        ░      ░ ░   ░ 
+                               ░  -->
